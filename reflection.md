@@ -1,6 +1,10 @@
 # PawPal+ Project Reflection
 
 ## 1. System Design
+1. add a pet
+        Pet object: name, animal, 
+2. schedule a walk 
+3. see today's tasks
 
 **a. Initial design**
 
