@@ -2,14 +2,17 @@
 
 ## 1. System Design
 1. add a pet
-        Pet object: name, animal, 
 2. schedule a walk 
 3. see today's tasks
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+- My system has four classes organized around a single chain of ownership:
+Owner is the root. It holds a list of Pet objects and can aggregate all tasks across them.
+Pet belongs to an Owner and carries its own list of Task objects — feeding, walking, meds, etc. are all attached to the specific animal they apply to.
+Task is the core unit of work. It knows which Pet it belongs to, when it's due, how urgent it is, and whether it repeats.
+Scheduler sits outside the ownership chain. It's stateless — it takes an Owner (and therefore all their pets and tasks) as input and handles the algorithmic work: sorting, conflict detection, and building the daily plan.
+The key relationship is: Owner → Pet → Task, with Scheduler operating on that whole tree without being part of it.
 
 **b. Design changes**
 
