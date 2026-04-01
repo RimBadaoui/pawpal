@@ -1,7 +1,7 @@
 from datetime import datetime
 from pawpal_system import Owner, Pet, Task, Scheduler
 
-# ── Setup ─────────────────────────────────────────────────────────────────────
+# Setup 
 owner = Owner(name="Jordan", email="jordan@email.com")
 
 mochi = Pet(name="Mochi", species="dog", breed="Shiba Inu", age=3)
@@ -10,7 +10,7 @@ luna  = Pet(name="Luna",  species="cat", breed="Tabby",    age=5)
 owner.add_pet(mochi)
 owner.add_pet(luna)
 
-# ── Tasks (all due today at different times) ───────────────────────────────────
+# Tasks 
 today = datetime.today()
 
 mochi.add_task(Task(
@@ -45,7 +45,7 @@ luna.add_task(Task(
     priority="low",
 ))
 
-# ── Generate & print schedule ─────────────────────────────────────────────────
+# Generate & print schedule 
 scheduler = Scheduler()
 schedule = scheduler.generate_daily_schedule(owner)
 conflicts = scheduler.detect_conflicts(schedule)
