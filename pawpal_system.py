@@ -71,6 +71,10 @@ class Owner:
         """Return all tasks due today across every pet."""
         return [t for t in self.get_all_tasks() if t.is_due_today()]
 
+    def get_tasks_by_pet(self, pet_name: str) -> list[Task]:
+        """Return all tasks belonging to the pet with the given name."""
+        return [t for t in self.get_all_tasks() if t.pet.name == pet_name]
+
 
 class Scheduler:
     def get_sorted_tasks(self, owner: Owner) -> list[Task]:
@@ -78,20 +82,48 @@ class Scheduler:
         tasks = [t for t in owner.get_todays_tasks() if not t.completed]
         return sorted(tasks, key=lambda t: (PRIORITY_ORDER[t.priority], t.due_time))
 
-    def detect_conflicts(self, tasks: list[Task]) -> list[Task]:
-        """Return tasks that share the exact same due_time (scheduling conflict)."""
-        conflicts = []
-        for i, task_a in enumerate(tasks):
-            for task_b in tasks[i + 1:]:
-                if task_a.due_time == task_b.due_time and task_a not in conflicts:
-                    conflicts.append(task_a)
-                    conflicts.append(task_b)
-        return conflicts
+    def detect_conflicts(self, tasks: list[Task]) -> list[str]:
+        """Return warning messages for any tasks (same or different pet) sharing a due_time."""
+        seen = {}
+        warnings = []
+        for task in tasks:
+            key = task.due_time
+            if key in seen:
+                warnings.append(
+                    f"Conflict at {task.due_time.strftime('%I:%M %p')}: "
+                    f"{seen[key].pet.name} '{seen[key].description}' and "
+                    f"{task.pet.name} '{task.description}'"
+                )
+            else:
+                seen[key] = task
+        return warnings
 
     def generate_daily_schedule(self, owner: Owner) -> list[Task]:
         """Return today's sorted, incomplete tasks with recurring tasks expanded."""
         self._expand_recurring_tasks(owner)
         return self.get_sorted_tasks(owner)
+
+    def complete_task(self, task: Task):
+        """Mark a task complete and schedule the next occurrence if it is recurring."""
+        task.mark_complete()
+        if not task.is_recurring:
+            return
+        next_time = task.next_occurrence()
+        if next_time is None:
+            return
+        already_scheduled = any(
+            t.description == task.description and t.due_time == next_time
+            for t in task.pet.tasks
+        )
+        if not already_scheduled:
+            task.pet.add_task(Task(
+                description=task.description,
+                pet=task.pet,
+                due_time=next_time,
+                priority=task.priority,
+                is_recurring=task.is_recurring,
+                recurrence_rule=task.recurrence_rule,
+            ))
 
     def _expand_recurring_tasks(self, owner: Owner):
         """For each recurring task not yet scheduled today, create today's instance."""

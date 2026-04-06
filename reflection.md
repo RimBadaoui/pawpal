@@ -33,6 +33,10 @@ The key relationship is: Owner → Pet → Task, with Scheduler operating on tha
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
 
+The scheduler sorts tasks by priority first, then by time. This means a high-priority task due at 6:00 PM will always appear before a medium-priority task due at 8:00 AM. The tradeoff is correctness of urgency over chronological readability — the schedule no longer reads like a timeline.
+
+This is reasonable for a pet care app because missing a high-priority task (like medication) is more harmful than seeing the list out of time order. A pet owner scanning quickly needs to know what matters most, not just what comes next. If chronological order mattered more, the sort key could be swapped to `(due_time, priority)` instead.
+
 ---
 
 ## 3. AI Collaboration
