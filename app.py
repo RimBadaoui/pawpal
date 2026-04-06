@@ -77,11 +77,14 @@ else:
             is_recurring=is_recurring,
             recurrence_rule=recurrence_rule,
         )
-        selected_pet.add_task(new_task)
-        st.success(f"Task '{task_title}' added for {selected_pet_name}!")
-        conflicts = Scheduler().detect_conflicts(st.session_state.owner.get_all_tasks())
-        for message in conflicts:
-            st.warning(f"Scheduling conflict: {message}")
+        existing_tasks = st.session_state.owner.get_all_tasks()
+        conflicts = Scheduler().detect_conflicts(existing_tasks + [new_task])
+        if conflicts:
+            for message in conflicts:
+                st.warning(f"Scheduling conflict: {message}")
+        else:
+            selected_pet.add_task(new_task)
+            st.success(f"Task '{task_title}' added for {selected_pet_name}!")
 
     all_tasks = st.session_state.owner.get_all_tasks()
     if all_tasks:
